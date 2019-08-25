@@ -1,4 +1,9 @@
 <?php
+// ngan cam truy cap bat hop phap
+if(!defined('ROOT_PATH')){
+	die('Can not access');
+}
+
 
 require 'public/bootstrap/Bootstrap.php';
 new Bootstrap\Bootstrap;
@@ -8,12 +13,19 @@ new Bootstrap\Bootstrap;
 // index.php/home/index
 // c : ten controller
 // m: ten method tuong ung cua controller day
-$c = $_GET['c'] ?? 'Home';
+$c = ucfirst($_GET['c'] ?? 'home');
 $m = $_GET['m'] ?? 'index';
 
 $nameController = "App\Controller\\" . $c;
-// khoi tao doi tuong cho controler
-$controller = new $nameController;
-// tu dong goi cac phuong thuc nam trong controller
-$controller->$m();
+$checkNameController = str_replace('\\', '/', trim($nameController, '\\')) . '.php';
+if(file_exists($checkNameController)){
+	// khoi tao doi tuong cho controler
+	$controller = new $nameController;
+	// tu dong goi cac phuong thuc nam trong controller
+	$controller->$m();
+} else {
+	header("Location:upgrade.php");
+}
+
+
 
