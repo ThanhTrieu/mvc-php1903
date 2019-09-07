@@ -25,6 +25,7 @@ class Home extends Controller
 		// xu ly du lieu
 		$data = [];
 		$listUser = $this->_db->getAllDataUsers();
+
 		$data['name'] = 'Test';
 		$data['info'] = $listUser;
 
