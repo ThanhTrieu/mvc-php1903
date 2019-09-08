@@ -18,6 +18,99 @@ class Tag_model extends Database
 		parent::__construct();
 	}
 
+	public function updateDataTagById($idTag, $nameTag, $descTag, $status)
+	{
+		$ut = date('Y-m-d H:i:s');
+		$flagUp = false;
+		$sql = "UPDATE tags AS a SET a.name_tag = :name, a.description = :descTag, a.status = :status, a.updated_at = :ut WHERE a.id = :id";
+		$stmt = $this->db->prepare($sql);
+		if($stmt){
+			$stmt->bindParam(':name', $nameTag, PDO::PARAM_STR);
+			$stmt->bindParam(':descTag', $descTag, PDO::PARAM_STR);
+			$stmt->bindParam(':status', $status, PDO::PARAM_INT);
+			$stmt->bindParam(':ut', $ut, PDO::PARAM_STR);
+			$stmt->bindParam(':id', $idTag, PDO::PARAM_INT);
+			if($stmt->execute()){
+				$flagUp = true;
+			}
+			$stmt->closeCursor();
+		}
+		return $flagUp;
+	}
+
+	public function checkUpddateNameTag($id, $name)
+	{
+		$flagCheck = false;
+		$sql = "SELECT * FROM tags AS a WHERE a.name_tag = :name AND a.id <> :id";
+		$stmt = $this->db->prepare($sql);
+		if($stmt){
+			$stmt->bindParam(':name', $name, PDO::PARAM_STR);
+			$stmt->bindParam(':id', $id, PDO::PARAM_INT);
+
+			if($stmt->execute()){
+				if($stmt->rowCount() > 0){
+					$flagCheck = true;
+				}
+			}
+			$stmt->closeCursor();
+		}
+		return $flagCheck;
+	}
+
+	public function getInfoDataTagById($id)
+	{
+		$data = [];
+		$sql = "SELECT * FROM tags AS a WHERE a.id = :id";
+		$stmt = $this->db->prepare($sql);
+		if($stmt){
+			$stmt->bindParam(':id', $id, PDO::PARAM_INT);
+			if($stmt->execute()){
+				if($stmt->rowCount() > 0){
+					$data = $stmt->fetch(PDO::FETCH_ASSOC);
+				}
+			}
+			$stmt->closeCursor();
+		}
+		return $data;
+	}
+
+	public function deleteTagById($id)
+	{
+		$flagDel = false;
+		$sql = "DELETE FROM tags WHERE id = :id";
+		$stmt = $this->db->prepare($sql);
+		if($stmt){
+			$stmt->bindParam(':id', $id, PDO::PARAM_INT);
+			if($stmt->execute()){
+				$flagDel = true;
+			}
+			$stmt->closeCursor();
+		}
+		return $flagDel;
+	}
+
+	public function getAllDataTags($keyword = '')
+	{
+		$data = [];
+		$key = "%".$keyword."%";
+
+		$sql = "SELECT * FROM tags AS a WHERE a.name_tag LIKE :nameTag OR a.description LIKE :descTag ORDER BY a.created_at DESC, a.id ASC";
+
+		$stmt = $this->db->prepare($sql);
+		if($stmt){
+			$stmt->bindParam(':nameTag', $key, PDO::PARAM_STR);
+			$stmt->bindParam(':descTag', $key, PDO::PARAM_STR);
+			
+			if($stmt->execute()){
+				if($stmt->rowCount() > 0){
+					$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				}
+			}
+			$stmt->closeCursor();
+		}
+		return $data;
+	}
+
 	// viet ham kiem tra xem name tag da ton tai trong db chua?
 	public function checkExitsNameTag($nameTag)
 	{
