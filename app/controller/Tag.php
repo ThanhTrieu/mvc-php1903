@@ -8,10 +8,13 @@ if(!defined('ROOT_PATH')){
 // nap Controller base
 use App\Controller\Controller;
 use App\Model\Tag_model;
+use App\Libs\Panigation;
 
 class Tag extends Controller
 {
 	private $tagModel;
+	private $_numItem = 2;
+
 	public function __construct()
 	{
 		$this->tagModel = new Tag_model();
@@ -24,9 +27,27 @@ class Tag extends Controller
 		$keyword = strip_tags($keyword);
 		$data['keyword'] = $keyword;
 
+		//page
+		$page = $_GET['page'] ?? '';
+		$page = is_numeric($page) && $page > 0 ? $page : 1;
 
+		$params = [
+			'c' => 'tag',
+			'm' => 'index',
+			'page' => '{page}', // sau nay thay the du lieu
+			'keyword' => $keyword
+		];
+
+		$linkPage = Panigation::createLink($params);
 		$listTags = $this->tagModel->getAllDataTags($keyword);
-		$data['listTags'] = $listTags;
+		$totalRecord = count($listTags);
+
+		// test panigate
+		$panigate = Panigation::panigate($linkPage, $page, $totalRecord, $this->_numItem, $keyword);
+
+		$listTagsByPage = $this->tagModel->getDataTagsByPage($panigate['start'],$this->_numItem, $keyword);
+		$data['listTags'] = $listTagsByPage;
+		$data['panigate'] = $panigate['htmlPage'];
 
 		//load header
 		$header = [];

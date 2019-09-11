@@ -39,6 +39,7 @@
 				<?php endforeach; ?>
 			</tbody>
 		</table>
+		<?php echo $panigate; ?>
 	</div>
 </div>
 <script type="text/javascript">

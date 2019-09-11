@@ -18,6 +18,30 @@ class Tag_model extends Database
 		parent::__construct();
 	}
 
+	public function getDataTagsByPage($start, $rows, $keyword = '')
+	{
+		$data = [];
+		$key = "%".$keyword."%";
+
+		$sql = "SELECT * FROM tags AS a WHERE a.name_tag LIKE :nameTag OR a.description LIKE :descTag ORDER BY a.created_at DESC, a.id ASC LIMIT :start,:rows";
+
+		$stmt = $this->db->prepare($sql);
+		if($stmt){
+			$stmt->bindParam(':nameTag', $key, PDO::PARAM_STR);
+			$stmt->bindParam(':descTag', $key, PDO::PARAM_STR);
+			$stmt->bindParam(':start', $start, PDO::PARAM_INT);
+			$stmt->bindParam(':rows', $rows, PDO::PARAM_INT);
+			
+			if($stmt->execute()){
+				if($stmt->rowCount() > 0){
+					$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				}
+			}
+			$stmt->closeCursor();
+		}
+		return $data;
+	}
+
 	public function updateDataTagById($idTag, $nameTag, $descTag, $status)
 	{
 		$ut = date('Y-m-d H:i:s');
